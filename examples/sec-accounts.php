@@ -289,6 +289,7 @@
             if ($query = mysqli_query($con, "INSERT INTO sec_accnts (full_name, email_add, contact_num, password, clinic) VALUES ('$full_name', '$email_add', '$contact_num', '$password', '$clinic')")){
                 $transac_mes = 'Admin added secretary '.$full_name.' and assigned to '.$clinic.' clinic.';
                 $query = mysqli_query($con, "INSERT INTO transacs (transac_datetime, transac_mes, transac_user) VALUES (current_timestamp(), '$transac_mes', 'Administrator')");
+                header( "Location: sec_accounts.php");
             }
      }
     ?>
