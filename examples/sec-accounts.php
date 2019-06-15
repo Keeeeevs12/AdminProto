@@ -1,15 +1,51 @@
 <?php
 session_start();
 include '../includes/unauth.php';
-auth_admin();
 include '../includes/dbconnection.php';
-$path = $_SERVER['SERVER_NAME'].'/AdminProto';
-if (isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header('Refresh: 0, url = /AdminProto/');
-    //header("location: $path/index.php");
-}
+    auth_admin();
+    $path = $_SERVER['SERVER_NAME'].'/AdminProto';
+    if (isset($_POST['logout'])) {
+        session_unset();
+        session_destroy();
+        header('Refresh: 0, url = /AdminProto/');
+        //header("location: $path/index.php");
+    }
+
+    if (isset($_POST['signup'])) {
+        $full_name = $_POST['full_name'];
+        $email_add = $_POST['email_add'];
+        $contact_num = $_POST['contact_num'];
+        $password = mysqli_real_escape_string($con, $_POST['password']);
+        $hshpsw = md5($password);
+        $clinic = $_POST['clinic'];
+
+        if ($query = mysqli_query($con, "INSERT INTO sec_accnts (full_name, email_add, contact_num, password, clinic) VALUES ('$full_name', '$email_add', '$contact_num', '$hshpsw', '$clinic')")) {
+            $transac_mes = 'Admin has added secretary ' . $full_name . ' and assigned to ' . $clinic . ' clinic.';
+            $query = mysqli_query($con, "INSERT INTO transacs (transac_datetime, transac_mes, transac_user) VALUES (current_timestamp(), '$transac_mes', 'Administrator')");
+            }
+    }
+
+    if (isset($_POST['sec_delete'])) {
+        $s_id = $_POST['get_id'];
+        $result = mysqli_query($con, "SELECT * FROM sec_accnts WHERE sec_accnts.sec_id = '$s_id'");
+        $rows = mysqli_fetch_assoc($result);
+        $sec_name = $rows['full_name'];
+        if ($query = mysqli_query($con, "DELETE FROM sec_accnts WHERE sec_accnts.sec_id = '$s_id'")){
+            $transac_mes = 'Admin has deleted secretary ' . $sec_name . ' account.';
+            $query = mysqli_query($con, "INSERT INTO transacs (transac_datetime, transac_mes, transac_user) VALUES (current_timestamp(), '$transac_mes', 'Administrator')");
+        }
+    }
+
+    if (isset($_POST['sec_edit'])) {
+        $s_id = $_POST['n_get_id'];
+        $n_full_name = $_POST['n_full_name'];
+        $n_email_add = $_POST['n_email_add'];
+        $n_clinic = $_POST['n_clinic'];
+        if ($query = mysqli_query($con, "UPDATE sec_accnts SET full_name = '$n_full_name', email_add = '$n_email_add', clinic = '$n_clinic' WHERE sec_accnts.sec_id = '$s_id'")){
+        $transac_mes = 'Admin has edited secretary ' . $n_full_name . ' informations.';
+        $query = mysqli_query($con, "INSERT INTO transacs (transac_datetime, transac_mes, transac_user) VALUES (current_timestamp(), '$transac_mes', 'Administrator')");
+        }
+    }
 ?>
 <!DOCTYPE html>
 <html>
@@ -138,7 +174,7 @@ if (isset($_POST['logout'])) {
                       <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                           <div class="media align-items-center">
                               <div class="media-body ml-2 d-none d-lg-block">
-                                  <span class="mb-0 text-sm  font-weight-bold">Secretary</span>
+                                  <span class="mb-0 text-sm  font-weight-bold">ADMIN</span>
                               </div>
                           </div>
                       </a>
@@ -204,8 +240,8 @@ if (isset($_POST['logout'])) {
                               echo "<td>" . $rows['clinic'] . "</td>";
                       ?>
                     <td>
-                      <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-editSec">Edit</button>
-                      <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-delete">Delete</button>
+                      <button type="button" onclick="test(this.id)" id="<?php echo $rows['sec_id']; ?>" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-editSec">Edit</button>
+                      <button type="button" onclick="test(this.id)" id="<?php echo $rows['sec_id']; ?>" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-delete">Delete</button>
                     </td>
                     <?php
                             echo "</tr>";
@@ -247,18 +283,8 @@ if (isset($_POST['logout'])) {
 
                               <div class="pl-lg-4">
                                   <div class="form-group">
-                                      <label class="form-control-label" for="">First Name:</label>
-                                      <input type="text" name="efname" id="" class="form-control form-control-alternative"  required autofocus>
-                                  </div>
-                                  
-                                  <div class="form-group">
-                                      <label class="form-control-label" for="">Middle Name:</label>
-                                      <input type="text" name="emname" id="" class="form-control form-control-alternative"  required autofocus>
-                                  </div>
-
-                                  <div class="form-group">
-                                      <label class="form-control-label" for="">Last Name:</label>
-                                      <input type="text" name="elname" id="" class="form-control form-control-alternative"  required autofocus>
+                                      <label class="form-control-label" for="">Full Name:</label>
+                                      <input type="text" name="full_name" id="" class="form-control form-control-alternative"  required autofocus>
                                   </div>
 
                                   <div class="form-group">
@@ -294,23 +320,6 @@ if (isset($_POST['logout'])) {
   </div>
   </div>
     <!--end add secretary account modal-->
-
-    <?php
-    if(isset($_POST['signup'])){
-            $full_name = $_POST['efname'].' '.$_POST['emname'].' '.$_POST['elname'];
-            $email_add = $_POST['email_add'];
-            $contact_num = $_POST['contact_num'];
-            $password = mysqli_real_escape_string($con, $_POST['password']);
-            $hshpsw = md5($password);
-            $clinic = $_POST['clinic'];
-
-            if ($query = mysqli_query($con, "INSERT INTO sec_accnts (full_name, email_add, contact_num, password, clinic) VALUES ('$full_name', '$email_add', '$contact_num', '$hshpsw', '$clinic')")){
-                $transac_mes = 'Admin added secretary '.$full_name.' and assigned to '.$clinic.' clinic.';
-                $query = mysqli_query($con, "INSERT INTO transacs (transac_datetime, transac_mes, transac_user) VALUES (current_timestamp(), '$transac_mes', 'Administrator')");
-                header( "Location: sec_accounts.php");
-            }
-     }
-    ?>
 <!--edit secretary account modal-->
 <div class="row">
         <div class="col-md-4">
@@ -327,47 +336,32 @@ if (isset($_POST['logout'])) {
       
                   <div class="modal-body">
                               <form method="post" action="" autocomplete="off">
-    
                                   <div class="pl-lg-4">
                                       <div class="form-group">
                                           <label class="form-control-label" for="">Secretary ID:</label>
-                                          <input type="text" name="" id="" class="form-control form-control-alternative" value="1" disabled autofocus>
+                                          <input type="text" name="" id="sec_id" class="form-control form-control-alternative" value="" disabled autofocus>
                                       </div>
 
                                       <div class="form-group">
-                                          <label class="form-control-label" for="">First Name:</label>
-                                          <input type="text" name="" id="" class="form-control form-control-alternative" value="Ivan Dale" required autofocus>
-                                      </div>
-                                      
-                                      <div class="form-group">
-                                          <label class="form-control-label" for="">Middle Name:</label>
-                                          <input type="text" name="" id="" class="form-control form-control-alternative" value="D." required autofocus>
-                                      </div>
-    
-                                      <div class="form-group">
-                                          <label class="form-control-label" for="">Last Name:</label>
-                                          <input type="text" name="" id="" class="form-control form-control-alternative" value="Badbaden" required autofocus>
-                                      </div>
-    
-                                      <div class="form-group">
-                                          <label class="form-control-label" for="">Contact Number:</label>
-                                          <input type="number" name="" id="" class="form-control form-control-alternative" value="09667629830" required autofocus>
+                                          <label class="form-control-label" for="">Full Name:</label>
+                                          <input type="text" name="n_full_name" id="n_full_name" class="form-control form-control-alternative" value="" required autofocus>
                                       </div>
     
                                       <div class="form-group">
                                             <label class="form-control-label" for="">Email:</label>
-                                            <input type="email" name="" id="" class="form-control form-control-alternative" value="ivanbadbaden@gmail.com" required autofocus>
+                                            <input type="email" name="n_email_add" id="n_email_add" class="form-control form-control-alternative" value="" required autofocus>
                                       </div>
 
                                       <div class="form-group">
                                             <label class="form-control-label" for="">Clinic:</label>
-                                            <input type="email" name="" id="" class="form-control form-control-alternative"  value="Pediatrics" required autofocus>
+                                            <input type="text" name="n_clinic" id="n_clinic" class="form-control form-control-alternative"  value="" required autofocus>
                                       </div>
 
                                     </div>                             
                                               
                                       <div class="modal-footer">
-                                          <button type="submit" class="btn btn-success mt-4">Save changes</button>
+                                          <input type="hidden" id="n_gets_id" name="n_get_id" value=""/>
+                                          <button type="submit" name="sec_edit" class="btn btn-success mt-4">Save changes</button>
                                           <button type="button" class="btn btn-danger  ml-auto" data-dismiss="modal">Close</button>
                                       </div>
                                     </div>
@@ -398,14 +392,14 @@ if (isset($_POST['logout'])) {
                             <p>Are you sure you want to <span class="text-danger" style="font-weight: bold;">DELETE</span> this account?</p>
                             
                         </div>
-                        
+                        <form action="" method="post">
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary">Confirm</button>
+							<input type="hidden" id="gets_id" name="get_id" value=""/>
+                            <button type="submit" name="sec_delete" class="btn btn-primary">Confirm</button>
                             <button type="button" class="btn btn-danger  ml-auto" data-dismiss="modal">Close</button> 
                         </div>
-                        
+                        </form>
                     </div>
-
         <!-- end delete secretary account modal -->
 
     </div>
@@ -416,6 +410,13 @@ if (isset($_POST['logout'])) {
   <script src="../assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Argon JS -->
   <script src="../assets/js/argon.js?v=1.0.0"></script>
+  <script>
+      function test(clickedID){
+		//alert(this.id);
+          document.getElementById("gets_id").value = clickedID;
+          document.getElementById("n_gets_id").value = clickedID;
+      }
+  </script>
 </body>
 
 </html>

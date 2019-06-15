@@ -1,15 +1,38 @@
 <?php
-session_start();
-include '../includes/unauth.php';
-auth_admin();
-include '../includes/dbconnection.php';
-$path = $_SERVER['SERVER_NAME'].'/AdminProto';
-if (isset($_POST['logout'])) {
-    session_unset();
-    session_destroy();
-    header('Refresh: 0, url = /AdminProto/');
-    //header("location: $path/index.php");
-}
+    session_start();
+    include '../includes/unauth.php';
+    include '../includes/dbconnection.php';
+    auth_admin();
+    $path = $_SERVER['SERVER_NAME'].'/AdminProto';
+    if (isset($_POST['logout'])) {
+        session_unset();
+        session_destroy();
+        header('Refresh: 0, url = /AdminProto/');
+        //header("location: $path/index.php");
+    }
+    if (isset($_POST['sec_delete'])) {
+        $s_id = $_POST['get_id'];
+        $result = mysqli_query($con, "SELECT * FROM users WHERE users.patients_id = '$s_id'");
+        $rows = mysqli_fetch_assoc($result);
+        $p_name = $rows['full_name'];
+        if ($query = mysqli_query($con, "DELETE FROM users WHERE users.patients_id = '$s_id'")){
+            $transac_mes = 'Admin has deleted secretary ' . $p_name . ' account.';
+            $query = mysqli_query($con, "INSERT INTO transacs (transac_datetime, transac_mes, transac_user) VALUES (current_timestamp(), '$transac_mes', 'Administrator')");
+        }
+    }
+
+    if (isset($_POST['sec_edit'])) {
+        $s_id = $_POST['n_get_id'];
+        $n_full_name = $_POST['n_full_name'];
+        $n_email_add = $_POST['n_email_add'];
+        $n_address = $_POST['n_address'];
+        $n_bday = $_POST['n_bday'];
+        $n_user_type = $_POST['n_user_type'];
+        if ($query = mysqli_query($con, "UPDATE users SET full_name = '$n_full_name', address = '$n_address', bday = '$n_bday', email_add = '$n_email_add', user_type = '$n_user_type' WHERE users.patients_id = '$s_id'")){
+            $transac_mes = 'Admin has edited secretary ' . $n_full_name . ' informations.';
+            $query = mysqli_query($con, "INSERT INTO transacs (transac_datetime, transac_mes, transac_user) VALUES (current_timestamp(), '$transac_mes', 'Administrator')");
+        }
+    }
 ?>
 <!DOCTYPE html>
 <html>
@@ -138,7 +161,7 @@ if (isset($_POST['logout'])) {
                         <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <div class="media align-items-center">
                                 <div class="media-body ml-2 d-none d-lg-block">
-                                    <span class="mb-0 text-sm  font-weight-bold">Secretary</span>
+                                    <span class="mb-0 text-sm  font-weight-bold">ADMIN</span>
                                 </div>
                             </div>
                         </a>
@@ -202,10 +225,11 @@ if (isset($_POST['logout'])) {
                                 <td> <?php echo $rows['contact_num']; ?> </td>
                                 <td> <?php echo $rows['email_add']; ?> </td>
                                 <td> <?php echo $rows['address']; ?> </td>
+                                <td> <?php echo $rows['user_type']; ?> </td>
                                 <td> <?php echo $rows['bday']; ?> </td>
                                 <td>
-                                    <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-editUser">Edit</button>
-                                    <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-delete">Delete</button>
+                                    <button type="button" onclick="test(this.id)" id="<?php echo $rows['patients_id']; ?>" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-editUser">Edit</button>
+                                    <button type="button" onclick="test(this.id)" id="<?php echo $rows['patients_id']; ?>" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-delete">Delete</button>
                                 </td>
                             </tr>
                             <?php } ?>
@@ -247,42 +271,27 @@ if (isset($_POST['logout'])) {
                                 <div class="pl-lg-4">
                                     <div class="form-group">
                                         <label class="form-control-label" for="">User ID:</label>
-                                        <input type="text" name="" id="" class="form-control form-control-alternative" value="1" disabled autofocus>
+                                        <input type="text" name="" id="" class="form-control form-control-alternative" value="" disabled autofocus>
                                     </div>
 
                                     <div class="form-group">
-                                        <label class="form-control-label" for="">First Name:</label>
-                                        <input type="text" name="" id="" class="form-control form-control-alternative" value="Ivan Dale" required autofocus>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-control-label" for="">Middle Name:</label>
-                                        <input type="text" name="" id="" class="form-control form-control-alternative" value="D." required autofocus>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-control-label" for="">Last Name:</label>
-                                        <input type="text" name="" id="" class="form-control form-control-alternative" value="Badbaden" required autofocus>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label class="form-control-label" for="">Contact Number:</label>
-                                        <input type="number" name="" id="" class="form-control form-control-alternative" value="09667629830" required autofocus>
+                                        <label class="form-control-label" for="">Full Name:</label>
+                                        <input type="text" name="n_full_name" id="" class="form-control form-control-alternative" value="" required autofocus>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="form-control-label" for="">Email:</label>
-                                        <input type="email" name="" id="" class="form-control form-control-alternative" value="ivanbadbaden@gmail.com" required autofocus>
+                                        <input type="email" name="n_email_add" id="" class="form-control form-control-alternative" value="" required autofocus>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="form-control-label" for="">Address:</label>
-                                        <input type="text" name="" id="" class="form-control form-control-alternative" value="San Francisco, Tarlac City" required autofocus>
+                                        <input type="text" name="n_address" id="" class="form-control form-control-alternative" value="" required autofocus>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="form-control-label">User Type:</label>
-                                        <select class="form-control form-control-alternative" name="disposed_method" id="dispose" required autofocus>
+                                        <select class="form-control form-control-alternative" name="n_user_type" id="n_user_type" required autofocus>
                                             <option value="">Select User Type</option>
                                             <option value="Patient">Patient</option>
                                             <option value="Guardian">Guardian</option>
@@ -295,14 +304,15 @@ if (isset($_POST['logout'])) {
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="ni ni-calendar-grid-58"></i></span>
                                             </div>
-                                            <input class="form-control datepicker" placeholder="Select date" type="text" value="mm/dd/yyyy">
+                                            <input class="form-control datepicker" name = "n_bday" placeholder="Select date" type="text" value="">
                                         </div>
                                     </div>
 
                                 </div>
 
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn btn-success mt-4">Save changes</button>
+                                    <input type="hidden" id="n_gets_id" name="n_get_id" value=""/>
+                                    <button type="submit" name="sec_edit" class="btn btn-success mt-4">Save changes</button>
                                     <button type="button" class="btn btn-danger  ml-auto" data-dismiss="modal">Close</button>
                                 </div>
                         </div>
@@ -333,12 +343,13 @@ if (isset($_POST['logout'])) {
                 <p>Are you sure you want to <span class="text-danger" style="font-weight: bold;">DELETE</span> this account?</p>
 
             </div>
-
+            <form action="" method="post">
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Confirm</button>
+                <input type="hidden" id="gets_id" name="get_id" value=""/>
+                <button type="submit" name="sec_delete" class="btn btn-primary">Confirm</button>
                 <button type="button" class="btn btn-danger  ml-auto" data-dismiss="modal">Close</button>
             </div>
-
+            </form>
         </div>
 
         <!-- end delete secretary account modal -->
@@ -351,6 +362,13 @@ if (isset($_POST['logout'])) {
     <!-- Argon JS -->
     <script src="../assets/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
     <script src="../assets/js/argon.js?v=1.0.0"></script>
+    <script>
+        function test(clickedID){
+            //alert(this.id);
+            document.getElementById("gets_id").value = clickedID;
+            document.getElementById("n_gets_id").value = clickedID;
+        }
+    </script>
 </body>
 
 </html>
