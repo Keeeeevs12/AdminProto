@@ -593,7 +593,7 @@ var Charts = (function() {
 					},
 					tooltips: {
 						enabled: false,
-						mode: 'index',
+						mode: 'index-admin.php',
 						intersect: false,
 						custom: function(model) {
 

@@ -1,4 +1,16 @@
-<?php include '../includes/dbconnection.php'; ?>
+<?php
+session_start();
+include '../includes/unauth.php';
+auth_sec();
+include '../includes/dbconnection.php';
+$path = $_SERVER['SERVER_NAME'].'/AdminProto';
+if (isset($_POST['logout'])) {
+    session_unset();
+    session_destroy();
+    header('Refresh: 0, url = /AdminProto/');
+    //header("location: $path/index.php");
+}
+?>
 <!DOCTYPE html>
 <html>
 
@@ -141,27 +153,29 @@
           </div>
         </form>
         <!-- User -->
-        <ul class="navbar-nav align-items-center d-none d-md-flex">
-          <li class="nav-item dropdown">
-            <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <div class="media align-items-center">
-                <div class="media-body ml-2 d-none d-lg-block">
-                  <span class="mb-0 text-sm  font-weight-bold">Secretary</span>
-                </div>
+          <form action="" method="post">
+            <ul class="navbar-nav align-items-center d-none d-md-flex">
+              <li class="nav-item dropdown">
+                <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <div class="media align-items-center">
+                    <div class="media-body ml-2 d-none d-lg-block">
+                      <span class="mb-0 text-sm  font-weight-bold">Secretary</span>
+                    </div>
+                  </div>
+                </a>
+                <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-right">
+                  <div class=" dropdown-header noti-title">
+                    <h6 class="text-overflow m-0">Welcome!</h6>
+                  </div>
+                  <div class="dropdown"></div>
+                  <button name="logout" type="submit" class="dropdown-item">
+                      <i class="ni ni-user-run"></i>
+                      <span>Logout</span>
+                  </button>
               </div>
-            </a>
-            <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-right">
-              <div class=" dropdown-header noti-title">
-                <h6 class="text-overflow m-0">Welcome!</h6>
-              </div>
-              <div class="dropdown"></div>
-              <a href="#!" class="dropdown-item">
-              <i class="ni ni-user-run"></i>
-              <span>Logout</span>
-            </a>
-          </div>
-          </li>
-        </ul>
+              </li>
+            </ul>
+          </form>
       </div>
     </nav>
     <!-- Header -->
