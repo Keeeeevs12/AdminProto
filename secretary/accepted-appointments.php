@@ -1,3 +1,4 @@
+<?php include '../includes/dbconnection.php'; ?>
 <!DOCTYPE html>
 <html>
 
@@ -31,7 +32,7 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <!-- Brand -->
-      <a class="navbar-brand pt-0" style="padding-bottom: 0px;" href="../index-sec.html">
+      <a class="navbar-brand pt-0" style="padding-bottom: 0px;" href="../index-sec.php">
         <!-- <img src="./assets/img/brand/blue.png" class="navbar-brand-img" alt="..."> -->
         <p class="text-primary" style="font-weight: bold; font-size: 38px;">SECRETARY</p>
       </a>
@@ -61,7 +62,7 @@
         <div class="navbar-collapse-header d-md-none">
           <div class="row">
             <div class="col-6 collapse-brand">
-              <a href="../index-sec.html">
+              <a href="./index-sec.html">
                 <p class="text-primary" style="font-weight: bold; font-size: 35px;">SECRETARY</p>
               </a>
             </div>
@@ -87,7 +88,7 @@
         <!-- Navigation -->
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" href="../index-sec.html">
+            <a class="nav-link" href="../index-sec.php">
               <i class="ni ni-calendar-grid-58 text-primary"></i> Clinic Schedule
             </a>
           </li>
@@ -105,12 +106,12 @@
             <div class="dropdown-menu" id="navbar-examples">
                 <ul class="nav nav-sm flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="./pending-appointments.html">
+                        <a class="nav-link" href="pending-appointments.php">
                           <i class="ni ni-bullet-list-67 text-red"></i>Pending Appointments
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./accepted-appointments.html">
+                        <a class="nav-link" href="accepted-appointments.php">
                           <i class="ni ni-bullet-list-67 text-success"></i>Accepted Appointments
                         </a>
                     </li>
@@ -127,7 +128,7 @@
     <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
       <div class="container-fluid">
         <!-- Brand -->
-        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="./pending-appointments.html">Pending Appointments</a>
+        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="accepted-appointments.php">Accepted Appointments</a>
         <!-- Form -->
         <form class="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
           <div class="form-group mb-0">
@@ -178,7 +179,7 @@
             <div class="card-header bg-transparent border-0">
                 <div class="row align-items-center">
                     <div class="col-8">
-                        <h3 class="text-white mb-0">Pending Appointments</h3>
+                        <h3 class="text-white mb-0">Accepted Appointments</h3>
                     </div>
                 </div>
           </div>
@@ -195,27 +196,27 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
+                <?php
+                $query = mysqli_query($con,"SELECT * FROM appointments WHERE appointments.status = '1'");
+                while ($rows = mysqli_fetch_assoc($query)) {
+                    $p_id = $rows['patients_id'];
+                    $s_id = $rows['sec_id'];
+                    $query1 = mysqli_query($con,"SELECT * FROM users WHERE users.patients_id = '$p_id'");
+                    $query2 = mysqli_query($con,"SELECT * FROM sec_accnts WHERE sec_accnts.sec_id = '$s_id'");
+                    while ($rows1 = mysqli_fetch_assoc($query1)) {
+                        while ($rows2 = mysqli_fetch_assoc($query2)) {
+                ?>
+                <tr>
+                    <td> <?php echo $rows1['full_name']; ?> </td>
+                    <td> <?php echo $rows['day'] ?> </td>
+                    <td> <?php echo $rows['time_start'].' - '.$rows['time_end']; ?> </td>
+                    <td> <?php echo $rows2['full_name']; ?> </td>
+                    <td> <?php echo $rows['room']; ?> </td>
                     <td>
-                      Ivan Dale D. Badbaden
+                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-done">Done Appointment</button>
                     </td>
-                    <td>
-                      Monday
-                    </td>
-                    <td>
-                      1:00 PM - 4:00 PM
-                    </td>
-                    <td>
-                      222
-                    </td>
-                    <td>
-                      Calvin Khen Lacson
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-confirm">Confirm</button>
-                        <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modal-decline">Decline</button>
-                    </td>
-                  </tr>
+                </tr>
+                <?php } } }?>
                 </tbody>
               </table>
             </div>
@@ -235,12 +236,12 @@
       </footer>
 
        <!-- confirm sched modal -->
-       <div class="modal fade" id="modal-confirm" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+       <div class="modal fade" id="modal-done" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
           <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
               <div class="modal-content">
                   
                   <div class="modal-header"> 
-                      <h6 class="modal-title" id="modal-title-default">Confirm Appointment</h6>
+                      <h6 class="modal-title" id="modal-title-default">Done Appointment</h6>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                           <span aria-hidden="true">×</span>
                       </button>
@@ -248,7 +249,7 @@
                   
                   <div class="modal-body">
                       
-                      <p>Are you sure you want to <span class="text-success" style="font-weight: bold;">CONFIRM</span> this appointment?</p>
+                      <p>Are you sure that this <span class="text-success" style="font-weight: bold;">APPOINTMENT IS DONE</span> ?</p>
                       
                   </div>
                   
@@ -260,34 +261,6 @@
               </div>
        </div>
   <!-- end confirm sched modal -->
-
-        <!-- confirm sched modal -->
-        <div class="modal fade" id="modal-decline" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
-            <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
-                <div class="modal-content">
-                    
-                    <div class="modal-header">
-                        <h6 class="modal-title" id="modal-title-default">Decline Appointment</h6>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    
-                    <div class="modal-body">
-                        
-                        <p>Are you sure you want to <span class="text-danger" style="font-weight: bold;">DECLINE</span> this appointment?</p>
-                        
-                    </div>
-                    
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary">Confirm</button>
-                        <button type="button" class="btn btn-danger  ml-auto" data-dismiss="modal">Close</button> 
-                    </div>
-                </div>
-            </div>
-        </div>
-            
-    <!-- end confirm sched modal -->
 
     </div>
   </div>

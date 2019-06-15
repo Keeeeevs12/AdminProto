@@ -87,7 +87,7 @@
         <!-- Navigation -->
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="nav-link" href="./index-sec.html">
+            <a class="nav-link" href="index-sec.php">
               <i class="ni ni-calendar-grid-58 text-primary"></i> Clinic Schedule
             </a>
           </li>
@@ -100,12 +100,12 @@
             <div class="dropdown-menu" id="navbar-examples">
                 <ul class="nav nav-sm flex-column">
                     <li class="nav-item">
-                        <a class="nav-link" href="./secretary/pending-appointments.html">
+                        <a class="nav-link" href="secretary/pending-appointments.php">
                           <i class="ni ni-bullet-list-67 text-red"></i>Pending Appointments
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./secretary/accepted-appointments.html">
+                        <a class="nav-link" href="secretary/accepted-appointments.php">
                           <i class="ni ni-bullet-list-67 text-success"></i>Accepted Appointments
                         </a>
                     </li>
@@ -122,7 +122,7 @@
     <nav class="navbar navbar-top navbar-expand-md navbar-dark" id="navbar-main">
       <div class="container-fluid">
         <!-- Brand -->
-        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="./index-sec.html">Clinic Schedule</a>
+        <a class="h4 mb-0 text-white text-uppercase d-none d-lg-inline-block" href="index-sec.php">Clinic Schedule</a>
         <!-- Form -->
         <form class="navbar-search navbar-search-dark form-inline mr-3 d-none d-md-flex ml-lg-auto">
           <div class="form-group mb-0">
